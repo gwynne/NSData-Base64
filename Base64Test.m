@@ -35,7 +35,7 @@ int			main(int argc, char **argv)
 {
 	@autoreleasepool
 	{
-		NSData			*originalData = [NSData dataWithBytesNoCopy:test_data length:sizeof(test_data) - 1 freeWhenDone:NO];
+		NSData			*originalData = [NSData dataWithBytesNoCopy:(void *)test_data length:sizeof(test_data) - 1 freeWhenDone:NO];
 		NSString		*base64Data = [originalData stringByEncodingWithBase64];
 		NSString		*separatedData = [originalData stringByEncodingWithBase64SeparatedByLines:YES];
 		NSData			*decodedData = [NSData dataWithBase64String:base64Data];

@@ -28,10 +28,13 @@
  + (NSData *)dataWithBase64String:(NSString *)string
  {
 	SecTransformRef		decoder = NULL;
+	NSData				*result = nil;
 	
 	decoder = SecDecodeTransformCreate(kSecBase64Encoding, NULL);
 	SecTransformSetAttribute(decoder, kSecTransformInputAttributeName, (__bridge CFDataRef)[string dataUsingEncoding:NSASCIIStringEncoding], NULL);
-	return (__bridge_transfer NSData *)SecTransformExecute(decoder, NULL);
+	result = (__bridge_transfer NSData *)SecTransformExecute(decoder, NULL);
+	CFRelease(decoder);
+	return result;
 }
 
 - (NSString *)stringByEncodingWithBase64
@@ -47,6 +50,7 @@
 	encoder = SecEncodeTransformCreate(kSecBase64Encoding, NULL);
 	SecTransformSetAttribute(encoder, kSecTransformInputAttributeName, (__bridge CFDataRef)self, NULL);
 	result = [[NSString alloc] initWithData:(__bridge_transfer NSData *)SecTransformExecute(encoder, NULL) encoding:NSASCIIStringEncoding];
+	CFRelease(encoder);
 	if (separateLines)
 	{
 #if USE_REGEX
@@ -60,7 +64,7 @@
 		NSMutableString			*scratch = [NSMutableString stringWithCapacity:len + (len >> 6)];
 		
 		for (NSUInteger i = 0; i < result.length; i += 64)
-			[scratch appendFormat:@"%@\n", [result substringWithRange:(NSRange){ i, MIN(64, result.length - i) }]];
+			[scratch appendFormat:@"%@\n", [result substringWithRange:(NSRange){ i, MIN(64UL, result.length - i) }]];
 		result = scratch;
 #endif
 	}
